@@ -8,14 +8,13 @@ import axios from "axios";
 import Button from "antd/es/button";
 import bg from "./assets/bg.jpg";
 import MaskLoading from "./MaskLoading";
-import LocalStorageService from "./LocalStorageService";
 const { TextArea } = Input;
 const App = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState({
     useLocal: true,
-    userName: LocalStorageService.getLocalStorageByName(LocalStorageService.keys.UserName) || "",
-    password: LocalStorageService.getLocalStorageByName(LocalStorageService.keys.Password) || "",
+    userName: "",
+    password: "",
     url: "",
     token: ""
   });
@@ -54,8 +53,6 @@ const App = () => {
               token
             }
           });
-          LocalStorageService.setLocalStorageByName(LocalStorageService.keys.UserName, data.userName);
-          LocalStorageService.setLocalStorageByName(LocalStorageService.keys.Password, data.password);
         }
       }).finally(() => {
         setLoading(false);
@@ -70,16 +67,20 @@ const App = () => {
 
   const result = useCallback(() => {
     if (!data.url) return "";
-    const location = new URL(data.url);
-    const key = "sys_MOH_vn";
-    if (data.token) {
-      if (data.useLocal) {
-        location.host = "localhost:3000";
+    try {
+      const location = new URL(data.url);
+      const key = "sys_MOH_vn";
+      if (data.token) {
+        if (data.useLocal) {
+          location.host = "localhost:3000";
+        }
+        location.searchParams.set(key, data.token);
+        return location.toString();
       }
-      location.searchParams.set(key, data.token);
-      return location.toString();
-    }
 
+    } catch (e) {
+      return "";
+    }
     return "";
   }, [data])();
 
@@ -117,11 +118,11 @@ const App = () => {
             Using localhost
             <Switch className="ml-2" checked={data.useLocal} onChange={(e) => handleChangeSwitch(e, "useLocal")} />
           </div>
-          <div onClick={handleCopy} className="copy is-pointer">
+          <div onClick={handleCopy} className="copy is-pointer bg-white">
             copy
           </div>
         </div>
-        <div className="result__box mt-2">
+        <div className="result__box mt-2 bg-white">
           {result}
         </div>
       </div>}
@@ -152,6 +153,11 @@ const Wrap = styled.div`
           height: 100px;
         }
       }
+    }
+
+    .bg-white {
+      background-color: #fff;
+      border-radius: 2px;
     }
 
     .result{
