@@ -72,6 +72,7 @@ const App = () => {
       const key = "sys_MOH_vn";
       if (data.token) {
         if (data.useLocal) {
+          location.protocol = "http://"
           location.host = "localhost:3000";
         }
         location.searchParams.set(key, data.token);
