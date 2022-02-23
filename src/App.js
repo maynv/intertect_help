@@ -16,7 +16,8 @@ const App = () => {
     userName: "",
     password: "",
     url: "",
-    token: ""
+    token: "",
+    port: "3000"
   });
 
   const handleChange = (e, key) => {
@@ -43,6 +44,12 @@ const App = () => {
     formData.append("userName", data.userName);
     formData.append("password", data.password);
     setLoading(true);
+    setData(pre => {
+      return {
+        ...pre,
+        token: ""
+      }
+    })
     axios.post("https://etransuatfnd.mohap.gov.ae:4443/api/Registration/UserLogin", formData)
       .then(response => {
         const token = get(response, "data.Data.Token");
@@ -73,7 +80,7 @@ const App = () => {
       if (data.token) {
         if (data.useLocal) {
           location.protocol = "http://"
-          location.host = "localhost:3000";
+          location.host = `localhost:${data.port || "3000"}`;
         }
         location.searchParams.set(key, data.token);
         return location.toString();
@@ -115,9 +122,12 @@ const App = () => {
       </div>
       {result && <div className="mt-2 result">
         <div className="row-inline w-100 justify-content-between">
-          <div>
+          <div className="row-inline w-80">
             Using localhost
             <Switch className="ml-2" checked={data.useLocal} onChange={(e) => handleChangeSwitch(e, "useLocal")} />
+            {data.useLocal && <div className="ml-2">
+              <Input name="port" onChange={(e) => handleChange(e, "port")} value={data.port} placeholder={data.port}></Input>
+            </div>}
           </div>
           <div onClick={handleCopy} className="copy is-pointer bg-white">
             copy
